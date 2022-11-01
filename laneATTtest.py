@@ -4,7 +4,6 @@ import math
 from tkinter import Variable
 from turtle import back, forward
 
-import cv2
 from sympy import im
 import torch
 import numpy as np
@@ -44,8 +43,8 @@ class TestLaneATT(nn.Module):
             self.anchor_feat_channels, fmap_w, self.fmap_h)
 
         self.conv1 = nn.Conv2d(backbone_nb_channels, self.anchor_feat_channels, kernel_size=1)
-        self.cls_layer = nn.Linear(2 * self.anchor_feat_channels * self.fmap_h, 2)
-        self.reg_layer = nn.Linear(2 * self.anchor_feat_channels * self.fmap_h, self.n_offsets + 1)
+        self.cls_layer = nn.Linear(2 * self.anchor_feat_channels * self.fmap_h, 2)  # K = 1, [k0, k1]
+        self.reg_layer = nn.Linear(2 * self.anchor_feat_channels * self.fmap_h, self.n_offsets + 1) # [l, x0, ..., xNpts-1]
         self.attention_layer = nn.Linear(self.anchor_feat_channels * self.fmap_h, len(self.anchors) - 1)
         self.initialize_layer(self.attention_layer)
         self.initialize_layer(self.conv1)
