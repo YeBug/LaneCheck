@@ -4,6 +4,7 @@ import math
 from tkinter import Variable
 from turtle import back, forward
 
+import cv2
 from sympy import im
 import torch
 import numpy as np

@@ -1,13 +1,11 @@
 import json
-from attr import attrs
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from sympy import im
 
-img_file_path = '../data/image/2022-04-22-11-00-05004 (98).jpg'
-label_file_path = '../data/labeljson/2022-04-22-11-00-05004 (98).json'
-road_file_path = '../data/roadjson/2022-04-22-11-00-05004 (98).json'
+img_file_path = '../data/image/2022-04-22-11-00-05004 (52).jpg'
+label_file_path = '../data/labeljson/2022-04-22-11-00-05004 (52).json'
 
 class ShowImg:
     def __init__(self) -> None:
@@ -48,5 +46,4 @@ class ShowImg:
 if __name__ == '__main__':
     testObj = ShowImg()
     label = testObj.getCoordinateFromLabel(label_file_path)
-    road = testObj.getCoordinateFromRoad(road_file_path)
     testObj.draw(label)
