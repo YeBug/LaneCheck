@@ -62,7 +62,8 @@ class TransToTusimple:
     def getLinesData(self, coordinates):
         lanes = []
         for line in coordinates:
-            if max(line, key=itemgetter(0))[0] - min(line, key=itemgetter(0))[0] > 800:
+            if max(line, key=itemgetter(0))[0] - min(line, key=itemgetter(0))[0] > 800 \
+                or max(line, key=itemgetter(1))[1] - min(line, key=itemgetter(1))[1] < 60:
                 continue
             intersection_x = []
             start_idx = len(line)-1
@@ -70,6 +71,7 @@ class TransToTusimple:
                 continue
             x1, y1 = line[start_idx]
             x2, y2 = line[start_idx-1]
+            positive_points = 0
             for h in self.h_samples:
                 if h < min(y1, y2):
                     intersection_x.append(-2)
@@ -90,7 +92,9 @@ class TransToTusimple:
                 c = sign * (y1 * x2 - x1 * y2)
                 x = -(b * h + c) / a
                 intersection_x.append(round(x))
-            lanes.append(intersection_x)
+                positive_points += 1
+            if positive_points > 1:
+                lanes.append(intersection_x)
         return lanes
 
     def createJson(self, label_path):
@@ -101,9 +105,11 @@ class TransToTusimple:
         else:
             print("label.json exist")
     
-    def buildJSON(self, json_path, img_path, label_path):
-        self.createJson(label_path)
+    def buildJSON(self, json_path, img_path, train_path, valid_path):
+        self.createJson(train_path)
+        self.createJson(valid_path)
         files_list = self.getAllFiles(json_path)
+        idx = 0
         for file_path in files_list:
             image_name = file_path.strip('.json')
             image_path = img_path + image_name + '.jpg'
@@ -111,8 +117,9 @@ class TransToTusimple:
             lines = self.getLinesData(coordinates=coordinates)
             if not lines:
                 continue
+            idx += 1
             info = {'lanes':lines, 'h_samples':self.h_samples, 'raw_file':image_path}
-            fr = open(label_path, 'a')
+            fr = open(train_path if idx % 10 != 0 else valid_path, 'a')
             model = json.dumps(info)
             fr.write(model)
             fr.write('\r')
@@ -127,9 +134,10 @@ class TransToTusimple:
 if __name__ == '__main__':
     img_path = '../roadData/images/'
     json_path = '../roadData/laneJSON/'
-    label_path = '../roadData/self_label.json'
+    train_label_path = '../roadData/train_label.json'
+    valid_label_path = '../roadData/valid_label.json'
     model = TransToTusimple()
-    model.buildJSON(json_path=json_path, img_path=img_path, label_path=label_path)
+    model.buildJSON(json_path=json_path, img_path=img_path, train_path=train_label_path, valid_path=valid_label_path)
 
                 
     
