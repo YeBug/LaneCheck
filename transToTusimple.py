@@ -105,26 +105,30 @@ class TransToTusimple:
         else:
             print("label.json exist")
     
-    def buildJSON(self, json_path, img_path, train_path, valid_path):
+    def buildJSON(self, json_path, img_path, train_path, valid_path, test_path):
         self.createJson(train_path)
         self.createJson(valid_path)
         files_list = self.getAllFiles(json_path)
         idx = 0
-        for file_path in files_list:
+        for id, file_path in enumerate(files_list):
             image_name = file_path.strip('.json')
             image_path = img_path + image_name + '.jpg'
             coordinates = self.getCoordinateFromLane(json_path+file_path)
             lines = self.getLinesData(coordinates=coordinates)
             if not lines:
                 continue
-            idx += 1
             info = {'lanes':lines, 'h_samples':self.h_samples, 'raw_file':image_path}
-            fr = open(train_path if idx % 10 != 0 else valid_path, 'a')
+            idx += 1
+            if idx % 39 == 0:
+                fr = open(test_path, 'a')
+            else:
+                fr = open(train_path if idx % 10 != 0 else valid_path, 'a')
             model = json.dumps(info)
             fr.write(model)
             fr.write('\r')
             fr.close()
             print(file_path + " " + "handle succeed")
+                
             # self.drawCircle(img_path, coordinates)
             # self.drawTusimple(image_path, lines)
 
@@ -136,8 +140,9 @@ if __name__ == '__main__':
     json_path = '../roadData/laneJSON/'
     train_label_path = '../roadData/train_label.json'
     valid_label_path = '../roadData/valid_label.json'
+    test_label_path = '../roadData/test_label.json'
     model = TransToTusimple()
-    model.buildJSON(json_path=json_path, img_path=img_path, train_path=train_label_path, valid_path=valid_label_path)
+    model.buildJSON(json_path=json_path, img_path=img_path, train_path=train_label_path, valid_path=valid_label_path, test_path=test_label_path)
 
                 
     
